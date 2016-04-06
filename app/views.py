@@ -46,18 +46,13 @@ def requires_auth(f):
 
     token = parts[1]
     try:
-        payload = jwt.decode(
-            token,
-            base64.b64decode('YOUR_CLIENT_SECRET'.replace("_","/").replace("-","+")),
-            audience='YOUR_CLIENT_ID'
-        )
+         payload = jwt.decode(token, 'secret')
+  
     except jwt.ExpiredSignature:
         return authenticate({'code': 'token_expired', 'description': 'token is expired'})
-    except jwt.InvalidAudienceError:
-        return authenticate({'code': 'invalid_audience', 'description': 'incorrect audience, expected: YOUR_CLIENT_ID'})
     except jwt.DecodeError:
         return authenticate({'code': 'token_invalid_signature', 'description': 'token signature is invalid'})
-
+    
     _request_ctx_stack.top.current_user = user = payload
     return f(*args, **kwargs)
 
